@@ -4,7 +4,7 @@ A modern, Git-based headless CMS that uses GitHub as a backend and deploys to Ne
 
 ## One-Click Deploy
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/yourusername/git-based-cms)
+[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/bamboounderwear/onclick)
 
 After clicking the deploy button:
 
