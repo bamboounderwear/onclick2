@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[template.environment]
+  VITE_GITHUB_CLIENT_ID = "GitHub OAuth Client ID"
+  VITE_GITHUB_REDIRECT_URI = "Netlify Site URL + /admin/callback"
+
+# Automatically handle GitHub OAuth
+[template]
+  incoming-hooks = ["GitHub"]
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
