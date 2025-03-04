@@ -1,13 +1,17 @@
-// netlify/functions/getComponents.js
 const fs = require('fs');
 const path = require('path');
 
 exports.handler = async (event, context) => {
   try {
-    // Use process.cwd() to get the project root directory
+    // Join the current working directory with "components"
     const componentsDir = path.join(process.cwd(), 'components');
-    const files = fs.readdirSync(componentsDir);
 
+    // Optional: Check if the directory exists (helps debug on Netlify)
+    if (!fs.existsSync(componentsDir)) {
+      throw new Error('Components directory not found: ' + componentsDir);
+    }
+
+    const files = fs.readdirSync(componentsDir);
     const components = files
       .filter(file => file.endsWith('.html'))
       .map(file => ({
