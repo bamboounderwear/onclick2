@@ -44,49 +44,50 @@
   </div>
 
   <script>
-    // Inline component data (bypasses local file CORS issues)
-    const components = [
-      { "name": "Header", "file": "header.html" },
-      { "name": "Hero Section", "file": "hero.html" },
-      { "name": "Footer", "file": "footer.html" }
-    ];
-
-    // Populate the component palette with draggable items
-    const componentList = document.getElementById('componentList');
-    components.forEach(component => {
-      const item = document.createElement('div');
-      item.className = 'component-item rounded shadow';
-      item.textContent = component.name;
-      item.setAttribute('data-file', component.file);
-      item.setAttribute('draggable', true);
-      // Set the file name as the drag data
-      item.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', component.file);
+    // Fetch the dynamic list of components from our Netlify Function.
+    fetch('/.netlify/functions/getComponents')
+      .then(response => response.json())
+      .then(components => {
+        const componentList = document.getElementById('componentList');
+        components.forEach(component => {
+          const item = document.createElement('div');
+          item.className = 'component-item rounded shadow';
+          item.textContent = component.name;
+          item.setAttribute('data-file', component.file);
+          item.setAttribute('draggable', true);
+          // When dragging starts, set the file name in the drag data.
+          item.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', component.file);
+          });
+          componentList.appendChild(item);
+        });
+      })
+      .catch(err => {
+        console.error('Error loading components:', err);
+        alert('Error loading components. Check console for details.');
       });
-      componentList.appendChild(item);
-    });
 
-    // Set up drag and drop for the builder canvas
+    // Set up drag-and-drop for the builder canvas.
     const builder = document.getElementById('builder');
     builder.addEventListener('dragover', e => {
-      e.preventDefault(); // Necessary to allow dropping
+      e.preventDefault(); // Allow dropping.
     });
     builder.addEventListener('drop', e => {
       e.preventDefault();
       const file = e.dataTransfer.getData('text/plain');
       if (file) {
-        // Fetch the component HTML from the /components folder
+        // Fetch the component HTML from the /components folder.
         fetch('./components/' + file)
           .then(response => response.text())
           .then(html => {
             const wrapper = document.createElement('div');
             wrapper.innerHTML = html;
-            // Append the loaded component to the builder canvas
+            // Append the loaded component to the builder canvas.
             builder.appendChild(wrapper);
           })
           .catch(err => {
             console.error('Error loading component HTML:', err);
-            alert('Error loading component HTML. If running locally, please use a local server.');
+            alert('Error loading component HTML.');
           });
       }
     });
