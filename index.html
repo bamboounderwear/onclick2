@@ -1,225 +1,304 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <title>Tailwind CSS Page Builder</title>
-      <!-- For development only; see Tailwind docs for production build -->
-      <script src="https://cdn.tailwindcss.com"></script>
-      <style>
-         body { margin: 0; height: 100vh; }
-         .container { display: flex; height: 100%; }
-         #palette {
-         width: 250px;
-         border-right: 1px solid #ddd;
-         padding: 1rem;
-         overflow-y: auto;
-         }
-         #builder {
-         flex-grow: 1;
-         padding: 1rem;
-         background-color: #f7fafc;
-         min-height: 100vh;
-         border: 2px dashed #ccc;
-         }
-         .component-item {
-         margin: 0.5rem 0;
-         padding: 0.5rem;
-         border: 1px solid #ccc;
-         background-color: #fff;
-         cursor: grab;
-         }
-         .dragging {
-         opacity: 0.5;
-         }
-      </style>
-   </head>
-   <body>
-      <div class="container">
-         <!-- Component Palette -->
-         <div id="palette">
-            <h2 class="text-xl font-bold mb-4">Components</h2>
-            <div id="componentList"></div>
-         </div>
-         <!-- Builder Canvas -->
-         <div id="builder">
-            <div id="builder-header" class="flex justify-between items-center mb-4">
-               <h2 class="text-xl font-bold">Page Builder Canvas</h2>
-               <button id="downloadBtn" class="bg-green-500 hover:bg-green-700 text-white px-4 py-2 rounded">Download HTML</button>
-            </div>
-            <!-- Dropped components will be inserted here -->
-         </div>
+<head>
+  <meta charset="UTF-8">
+  <title>Tailwind CSS Page Builder</title>
+  <!-- Tailwind CSS via CDN (okay for development; see Tailwind docs for production) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; height: 100vh; }
+    .container { display: flex; height: 100%; }
+    #palette {
+      width: 250px;
+      border-right: 1px solid #ddd;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    #builder-container {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1rem;
+      background-color: #f7fafc;
+      min-height: 100vh;
+    }
+    #builder {
+      flex-grow: 1;
+      border: 2px dashed #ccc;
+      padding: 1rem;
+      position: relative;
+    }
+    .component-item {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      cursor: grab;
+    }
+    /* Dropped components in the builder */
+    .builder-component {
+      position: relative;
+      border: 1px solid #ddd;
+      background-color: #fff;
+      margin-bottom: 0.5rem;
+      padding: 1rem;
+      cursor: grab; /* indicates draggable item */
+    }
+    .builder-component.drag-over {
+      outline: 2px dashed #4c51bf; /* highlight drop target */
+    }
+    /* "Remove" button */
+    .remove-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Component Palette -->
+    <div id="palette">
+      <h2 class="text-xl font-bold mb-4">Components</h2>
+      <div id="componentList"></div>
+    </div>
+
+    <!-- Builder Area -->
+    <div id="builder-container">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-xl font-bold">Page Builder Canvas</h2>
+        <button id="downloadBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+          Download HTML
+        </button>
       </div>
-      <script>
-         // 1. Fetch component list from the Netlify function
-         fetch('/.netlify/functions/getComponents')
-           .then(response => response.json())
-           .then(components => {
-             if (!Array.isArray(components)) {
-               throw new Error('Unexpected response format');
-             }
-             const componentList = document.getElementById('componentList');
-             components.forEach(component => {
-               const item = document.createElement('div');
-               item.className = 'component-item rounded shadow';
-               item.textContent = component.name;
-               item.setAttribute('data-file', component.file);
-               item.setAttribute('draggable', true);
-               // Set custom drag data for new component items
-               item.addEventListener('dragstart', e => {
-                 e.dataTransfer.setData('componentFile', component.file);
-               });
-               componentList.appendChild(item);
-             });
-           })
-           .catch(err => {
-             console.error('Error loading components:', err);
-             alert('Error loading components. Check console for details.');
-           });
-         
-         const builder = document.getElementById('builder');
-         
-         // 2. Function to insert a new component into the builder at a given position
-         function insertNewComponent(file, beforeElement) {
-           fetch('./components/' + file)
-             .then(response => response.text())
-             .then(html => {
-               const wrapper = document.createElement('div');
-               // Mark this container as a dropped component for reordering
-               wrapper.classList.add('component-wrapper', 'relative', 'border', 'p-4', 'mb-4', 'bg-white', 'shadow');
-               wrapper.setAttribute('draggable', true);
-               // Assign a unique ID for reordering
-               wrapper.id = 'comp-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-         
-               // Insert the fetched component HTML
-               wrapper.innerHTML = html;
-         
-               // Create a "Remove" button and add it to the wrapper
-               const removeBtn = document.createElement('button');
-               removeBtn.textContent = 'Remove';
-               removeBtn.classList.add('remove-btn', 'absolute', 'top-2', 'right-2', 'bg-red-500', 'hover:bg-red-700', 'text-white', 'px-2', 'py-1', 'rounded');
-               removeBtn.addEventListener('click', () => {
-                 wrapper.remove();
-               });
-               wrapper.appendChild(removeBtn);
-         
-               // Add drag events for reordering this wrapper
-               wrapper.addEventListener('dragstart', function(e) {
-                 e.dataTransfer.setData('componentWrapper', wrapper.id);
-                 wrapper.classList.add('dragging');
-               });
-               wrapper.addEventListener('dragend', function(e) {
-                 wrapper.classList.remove('dragging');
-               });
-               wrapper.addEventListener('dragover', function(e) {
-                 e.preventDefault();
-               });
-               wrapper.addEventListener('drop', function(e) {
-                 e.preventDefault();
-                 const draggedId = e.dataTransfer.getData('componentWrapper');
-                 const draggedElem = document.getElementById(draggedId);
-                 if (draggedElem && draggedElem !== wrapper) {
-                   const rect = wrapper.getBoundingClientRect();
-                   const dropPos = e.clientY - rect.top;
-                   if (dropPos < rect.height / 2) {
-                     builder.insertBefore(draggedElem, wrapper);
-                   } else {
-                     builder.insertBefore(draggedElem, wrapper.nextSibling);
-                   }
-                 }
-               });
-         
-               // Insert the new component wrapper into the builder at the desired position
-               if (beforeElement) {
-                 builder.insertBefore(wrapper, beforeElement);
-               } else {
-                 builder.appendChild(wrapper);
-               }
-             })
-             .catch(err => {
-               console.error('Error loading component HTML:', err);
-               alert('Error loading component HTML.');
-             });
-         }
-         
-         // 3. Handle drop events on the builder canvas (for both new components and reordering)
-         builder.addEventListener('dragover', e => {
-           e.preventDefault();
-         });
-         builder.addEventListener('drop', e => {
-           e.preventDefault();
-           // Check if a new component from the palette is being dropped
-           const file = e.dataTransfer.getData('componentFile');
-           if (file) {
-             // Determine the closest dropped component to the drop position for insertion
-             const wrappers = Array.from(builder.querySelectorAll('.component-wrapper'));
-             let insertBefore = null;
-             let closestDistance = Infinity;
-             wrappers.forEach(wrapper => {
-               const rect = wrapper.getBoundingClientRect();
-               const distance = Math.abs(e.clientY - (rect.top + rect.height / 2));
-               if (distance < closestDistance) {
-                 closestDistance = distance;
-                 // Decide to insert before or after the target wrapper based on drop position
-                 if (e.clientY < rect.top + rect.height / 2) {
-                   insertBefore = wrapper;
-                 } else {
-                   insertBefore = wrapper.nextSibling;
-                 }
-               }
-             });
-             insertNewComponent(file, insertBefore);
-           } else {
-             // If not a new component, check if it's a wrapper reorder dropped on empty space
-             const wrapperId = e.dataTransfer.getData('componentWrapper');
-             if (wrapperId) {
-               const draggedElem = document.getElementById(wrapperId);
-               if (draggedElem) {
-                 builder.appendChild(draggedElem);
-               }
-             }
-           }
-         });
-         
-         // 4. Download HTML function that exports the current builder content as a complete HTML file
-         function downloadHTML() {
-           // Clone the builder so we can remove interactive elements without affecting the live builder
-           const clone = builder.cloneNode(true);
-           // Remove the builder header (download button, etc.)
-           const builderHeader = clone.querySelector('#builder-header');
-           if (builderHeader) builderHeader.remove();
-         
-           // Remove all remove buttons from each component wrapper
-           clone.querySelectorAll('.remove-btn').forEach(btn => btn.remove());
-         
-           // Extract the inner HTML of the builder (all dropped components)
-           const componentsHTML = clone.innerHTML;
-         
-           // Construct a full HTML document that includes the Tailwind CDN link in the head
-           const fullHTML = `<!DOCTYPE html>
-         <html lang="en">
-         <head>
-         <meta charset="UTF-8">
-         <title>Generated Page</title>
-         <script src="https://cdn.tailwindcss.com">
-      </script>
-      </head>
-      <body>
-         ${componentsHTML}
-   </body>
+      <div id="builder"></div>
+    </div>
+  </div>
+
+  <script>
+    /************************************************************************
+     * 1) FETCH COMPONENT LIST FROM NETLIFY FUNCTION (or your endpoint)
+     ************************************************************************/
+    fetch('/.netlify/functions/getComponents')
+      .then(response => response.json())
+      .then(components => {
+        if (!Array.isArray(components)) {
+          throw new Error('Unexpected response format');
+        }
+        populatePalette(components);
+      })
+      .catch(err => {
+        console.error('Error loading components:', err);
+        alert('Error loading components. Check console for details.');
+      });
+
+    const componentList = document.getElementById('componentList');
+    const builder = document.getElementById('builder');
+
+    // This will store a reference to the item currently being dragged (from either palette or builder)
+    let draggedElement = null;
+    // We'll store whether we're dragging from the palette or from inside the builder
+    let isFromPalette = false;
+    let paletteFile = null; // if from palette, store the component's file name
+
+    /************************************************************************
+     * 2) POPULATE PALETTE WITH DRAGGABLE COMPONENTS
+     ************************************************************************/
+    function populatePalette(components) {
+      components.forEach(component => {
+        const item = document.createElement('div');
+        item.className = 'component-item rounded shadow';
+        item.textContent = component.name;
+        item.setAttribute('data-file', component.file);
+        item.setAttribute('draggable', true);
+
+        // Drag start from the palette:
+        item.addEventListener('dragstart', e => {
+          draggedElement = null; // we have no actual element yet
+          isFromPalette = true;
+          paletteFile = component.file;
+        });
+
+        // Optional: reset states on dragend
+        item.addEventListener('dragend', e => {
+          isFromPalette = false;
+          paletteFile = null;
+        });
+
+        componentList.appendChild(item);
+      });
+    }
+
+    /************************************************************************
+     * 3) SET UP DRAGOVER & DROP ON THE BUILDER (FOR NEW COMPONENTS)
+     ************************************************************************/
+    builder.addEventListener('dragover', e => {
+      e.preventDefault(); // Must prevent default to allow dropping
+    });
+
+    builder.addEventListener('drop', e => {
+      e.preventDefault();
+
+      // If it's from the palette, we need to fetch & create the new component
+      if (isFromPalette && paletteFile) {
+        fetchComponentHTML(paletteFile).then(wrapper => {
+          // Insert near drop position: check if we hovered over an existing component
+          const target = getBuilderComponentFromPoint(e.clientX, e.clientY);
+
+          if (target) {
+            // Insert before or after target based on pointer position
+            const bounding = target.getBoundingClientRect();
+            const midY = bounding.y + bounding.height / 2;
+
+            if (e.clientY > midY) {
+              builder.insertBefore(wrapper, target.nextSibling);
+            } else {
+              builder.insertBefore(wrapper, target);
+            }
+          } else {
+            // No existing components, or we are below them all
+            builder.appendChild(wrapper);
+          }
+
+          // Reset states
+          isFromPalette = false;
+          paletteFile = null;
+        });
+      }
+      else if (draggedElement && !isFromPalette) {
+        // This means we're dragging an existing builder component
+        // If we drop on the builder container (not on a component), place it at the end
+        if (e.target === builder) {
+          builder.appendChild(draggedElement);
+        }
+      }
+    });
+
+    /************************************************************************
+     * 4) FUNCTION: FETCH COMPONENT HTML & WRAP IT
+     ************************************************************************/
+    function fetchComponentHTML(file) {
+      return fetch('./components/' + file)
+        .then(response => response.text())
+        .then(html => {
+          // Wrap the fetched HTML in a container div
+          const wrapper = document.createElement('div');
+          wrapper.classList.add('builder-component'); // styling
+          wrapper.setAttribute('draggable', 'true');  // enable reorder
+          wrapper.innerHTML = html;
+
+          // "Remove" button
+          const removeBtn = document.createElement('button');
+          removeBtn.textContent = 'Remove';
+          removeBtn.classList.add(
+            'remove-btn',
+            'bg-red-500', 'hover:bg-red-700',
+            'text-white', 'px-2', 'py-1', 'rounded'
+          );
+          removeBtn.addEventListener('click', () => {
+            wrapper.remove();
+          });
+          wrapper.appendChild(removeBtn);
+
+          // Add drag events for reordering
+          addReorderEvents(wrapper);
+          return wrapper;
+        })
+        .catch(err => {
+          console.error('Error loading component HTML:', err);
+          alert('Error loading component HTML.');
+        });
+    }
+
+    /************************************************************************
+     * 5) REORDER LOGIC FOR EXISTING BUILDER COMPONENTS
+     ************************************************************************/
+    function addReorderEvents(componentEl) {
+      // Start dragging
+      componentEl.addEventListener('dragstart', e => {
+        draggedElement = componentEl;
+        isFromPalette = false; // definitely from builder
+        componentEl.classList.add('opacity-50');
+      });
+
+      // End dragging
+      componentEl.addEventListener('dragend', e => {
+        draggedElement = null;
+        componentEl.classList.remove('opacity-50');
+      });
+
+      // While dragging over a component, decide if we move it before or after
+      componentEl.addEventListener('dragover', e => {
+        e.preventDefault();
+        if (!draggedElement || draggedElement === componentEl) return;
+
+        // Basic "insert above/below" logic
+        const bounding = componentEl.getBoundingClientRect();
+        const midY = bounding.y + bounding.height / 2;
+
+        // Insert the draggedElement before or after this component
+        if (e.clientY > midY) {
+          componentEl.parentNode.insertBefore(draggedElement, componentEl.nextSibling);
+        } else {
+          componentEl.parentNode.insertBefore(draggedElement, componentEl);
+        }
+      });
+    }
+
+    // Helper: get the topmost ".builder-component" at a point (x, y) if any
+    function getBuilderComponentFromPoint(x, y) {
+      const element = document.elementFromPoint(x, y);
+      if (!element) return null;
+      // Climb up the DOM until we find a .builder-component or the builder
+      let current = element;
+      while (current && current !== builder) {
+        if (current.classList && current.classList.contains('builder-component')) {
+          return current;
+        }
+        current = current.parentNode;
+      }
+      return null;
+    }
+
+    /************************************************************************
+     * 6) DOWNLOAD THE BUILT PAGE AS HTML
+     ************************************************************************/
+    const downloadBtn = document.getElementById('downloadBtn');
+    downloadBtn.addEventListener('click', () => {
+      // Clone the builder to work with a copy
+      const builderClone = builder.cloneNode(true);
+      
+      // Remove all "Remove" buttons from the clone
+      builderClone.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.remove();
+      });
+      
+      // Get the cleaned HTML content
+      const content = builderClone.innerHTML;
+      
+      // Create the HTML template with proper script tag handling
+      const fullHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Exported Page</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"><\/script>
+</head>
+<body>
+${content}
+</body>
 </html>`;
-// Create a Blob and trigger the download
-const blob = new Blob([fullHTML], { type: 'text/html' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = 'page.html';
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
-}
-// Set up the download button click event
-document.getElementById('downloadBtn').addEventListener('click', downloadHTML);
-</script>
+
+      // Create a Blob & trigger a download
+      const blob = new Blob([fullHTML], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'page.html';
+      link.click();
+      URL.revokeObjectURL(url);
+    });
+  </script>
 </body>
 </html>
