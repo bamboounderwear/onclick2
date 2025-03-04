@@ -1,15 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#000000" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>Git-based CMS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <title>Tailwind CSS Page Builder</title>
+  <!-- Include Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; height: 100vh; }
+    .container { display: flex; height: 100%; }
+    #palette {
+      width: 250px;
+      border-right: 1px solid #ddd;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    #builder {
+      flex-grow: 1;
+      padding: 1rem;
+      background-color: #f7fafc;
+      min-height: 100vh;
+      border: 2px dashed #ccc;
+    }
+    .component-item {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      cursor: grab;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Component Palette -->
+    <div id="palette">
+      <h2 class="text-xl font-bold mb-4">Components</h2>
+      <div id="componentList"></div>
+    </div>
+    <!-- Builder Canvas -->
+    <div id="builder">
+      <h2 class="text-xl font-bold mb-4">Page Builder Canvas</h2>
+    </div>
+  </div>
+
+  <script>
+    // Inline component data (bypasses local file CORS issues)
+    const components = [
+      { "name": "Header", "file": "header.html" },
+      { "name": "Hero Section", "file": "hero.html" },
+      { "name": "Footer", "file": "footer.html" }
+    ];
+
+    // Populate the component palette with draggable items
+    const componentList = document.getElementById('componentList');
+    components.forEach(component => {
+      const item = document.createElement('div');
+      item.className = 'component-item rounded shadow';
+      item.textContent = component.name;
+      item.setAttribute('data-file', component.file);
+      item.setAttribute('draggable', true);
+      // Set the file name as the drag data
+      item.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', component.file);
+      });
+      componentList.appendChild(item);
+    });
+
+    // Set up drag and drop for the builder canvas
+    const builder = document.getElementById('builder');
+    builder.addEventListener('dragover', e => {
+      e.preventDefault(); // Necessary to allow dropping
+    });
+    builder.addEventListener('drop', e => {
+      e.preventDefault();
+      const file = e.dataTransfer.getData('text/plain');
+      if (file) {
+        // Fetch the component HTML from the /components folder
+        fetch('./components/' + file)
+          .then(response => response.text())
+          .then(html => {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = html;
+            // Append the loaded component to the builder canvas
+            builder.appendChild(wrapper);
+          })
+          .catch(err => {
+            console.error('Error loading component HTML:', err);
+            alert('Error loading component HTML. If running locally, please use a local server.');
+          });
+      }
+    });
+  </script>
+</body>
 </html>

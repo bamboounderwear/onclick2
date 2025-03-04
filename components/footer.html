@@ -1,0 +1,105 @@
+<style>
+  @media (max-width: 991px) {
+    /* DivMagic Note: Tailwind does not support max-width. We will fix this soon. */
+
+    #div-1 {
+      height: 100vh !important; padding-bottom: 32px !important;
+    }
+    #div-2 {
+      max-width: 728px !important; padding-left: 30px !important; padding-right: 30px !important;
+    }
+    #div-3 {
+      grid-template-columns: auto auto auto 80px !important;
+    }
+    #div-4 {
+      grid-area: span 1 / span 4 / span 1 / span 4 !important;
+    }
+    #div-5 {
+      flex-direction: column !important; align-items: flex-start !important; display: flex !important;
+    }
+    #div-6 {
+      flex-direction: column !important; align-items: flex-start !important; display: flex !important;
+    }
+    #div-7 {
+      flex-direction: column !important; align-items: flex-start !important; display: flex !important;
+    }
+    #div-8 {
+      flex-direction: column !important; align-items: flex-start !important; display: flex !important;
+    }
+  }
+  @media (max-width: 767px) {
+    /* DivMagic Note: Tailwind does not support max-width. We will fix this soon. */
+
+    #div-1 {
+      height: auto !important;
+    }
+    #div-3 {
+      grid-template-columns: 1fr 1fr !important;
+    }
+    #div-4 {
+      grid-area: span 1 / span 2 / span 1 / span 2 !important;
+    }
+    #div-5 {
+      flex-direction: column !important; align-items: flex-start !important; display: flex !important;
+    }
+    #div-6 {
+      flex-direction: column !important; align-items: flex-start !important; display: flex !important;
+    }
+    #div-7 {
+      flex-direction: column !important; align-items: flex-start !important; display: flex !important;
+    }
+    #div-8 {
+      flex-direction: column !important; align-items: flex-start !important; display: flex !important;
+    }
+  }
+  @media (max-width: 479px) {
+    /* DivMagic Note: Tailwind does not support max-width. We will fix this soon. */
+
+    #div-2 {
+      max-width: none !important; padding-left: 20px !important; padding-right: 20px !important;
+    }
+    #div-3 {
+      grid-template-columns: 1fr 1fr !important;
+    }
+    #div-4 {
+      grid-area: span 1 / span 2 / span 1 / span 2 !important;
+    }
+  }
+  @media (min-width: 1280px) {
+    #div-4 {
+      grid-area: span 1 / span 1 / span 1 / span 1 !important;
+    }
+  }
+</style>
+<div class="text-zinc-800 text-sm py-12 bg-amber-50" id="div-1">
+  <div class="flex-col justify-center px-10 flex w-full h-full max-w-[90.00rem] m-auto" id="div-2">
+    <div class="items-center border-b-stone-300 border-b-2 auto-cols-fr grid-cols-[1fr_auto] grid-rows-[auto] justify-items-start pb-8 grid mb-8 border-solid gap-4">
+      <a href="https://studio-library.webflow.io/#" class="text-zinc-800 auto-cols-fr grid-cols-[1fr_1fr] grid-rows-[auto_auto] inline-flex max-w-full"><img src="https://cdn.prod.website-files.com/666f04a32366ca64da292e9c/667008379cfe3add727b5156_Studio%20Library%20Logo.svg" class="cursor-pointer align-middle inline-block w-44 h-9 max-w-full" /></a>
+      <div class="gap-x-2 grid-cols-[1fr_1fr_1fr] grid-rows-[auto] flex col-span-1 row-span-1 text-blue-700">
+        <a href="https://studio-library.webflow.io/#" class="underline inline-block max-w-full"><img src="https://cdn.prod.website-files.com/666f04a32366ca64da292e9c/6670922e05fd61b79036043c_Facebook%20Social%20Icon-1.svg" class="cursor-pointer align-middle inline-block w-7 h-7 max-w-full" /></a><a href="https://studio-library.webflow.io/#" class="underline inline-block max-w-full"><img src="https://cdn.prod.website-files.com/666f04a32366ca64da292e9c/6670922f05fd61b79036044b_Twitter%20Social%20Icon-1.svg" class="cursor-pointer align-middle inline-block w-7 h-7 max-w-full" /></a><a href="https://studio-library.webflow.io/#" class="underline inline-block max-w-full"><img src="https://cdn.prod.website-files.com/666f04a32366ca64da292e9c/6670922e05fd61b790360437_Instagram%20Icon-1.svg" class="cursor-pointer align-middle inline-block w-7 h-7 max-w-full" /></a>
+      </div>
+    </div>
+    <div class="auto-cols-fr grid-cols-[auto_auto_auto_auto] grid-rows-[auto] grid gap-12 xl:grid-cols-[4fr_auto_auto_auto_1fr]" id="div-3">
+      <div style="grid-area: span 1 / span 4 / span 1 / span 4;" class="w-full max-w-[21.88rem] col-span-1 row-span-1" id="div-4">
+        <p class="text-[1.38rem] leading-7 mb-4">We design brands and websites that people love.<br /></p>
+        <p class="text-stone-500 mb-4">© Studio Library. Built by <a href="https://www.nikolaibain.com/" class="border-b-stone-300 border-b-2 border-solid">Nikolai Bain</a>. <br />Powered by <a href="http://www.webflow.com" class="border-b-stone-300 border-b-2 border-solid">Webflow</a>.<br /></p>
+      </div>
+      <div class="items-start flex-col flex col-span-1 row-span-1" id="div-5">
+        <div class="text-stone-500 font-medium uppercase mb-6">Website</div>
+        <a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Home</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Our work</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Insights</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">About us</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Get in touch</a>
+      </div>
+      <div class="items-start flex-col flex" id="div-6">
+        <div class="text-stone-500 font-medium uppercase mb-6">Admin</div>
+        <a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Style guide</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Licenses</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Instructions</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Changelog</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Password</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">404</a>
+      </div>
+      <div class="items-start flex-col flex" id="div-7">
+        <div class="text-stone-500 font-medium uppercase mb-6">Contact</div>
+        <a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">hello@email.com</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">+64 534 0459</a>
+      </div>
+      <div class="items-start flex-col flex" id="div-8">
+        <div class="text-stone-500 font-medium uppercase mb-6">Social</div>
+        <a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Facebook</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Instagram</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">Twitter</a><a href="https://studio-library.webflow.io/#" class="text-stone-800 mb-1">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</div>
