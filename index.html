@@ -273,6 +273,26 @@
         btn.remove();
       });
       
+      // Remove builder-component class and draggable attribute from all components
+      builderClone.querySelectorAll('.builder-component').forEach(component => {
+        component.classList.remove('builder-component');
+        component.removeAttribute('draggable');
+        
+        // Remove cursor-pointer class from all elements
+        const elementsWithCursor = component.querySelectorAll('.cursor-pointer');
+        elementsWithCursor.forEach(el => {
+          el.classList.remove('cursor-pointer');
+        });
+        
+        // Also check for inline cursor styles
+        const allElements = component.querySelectorAll('*');
+        allElements.forEach(el => {
+          if (el.style && el.style.cursor) {
+            el.style.cursor = '';
+          }
+        });
+      });
+      
       // Get the cleaned HTML content
       const content = builderClone.innerHTML;
       
